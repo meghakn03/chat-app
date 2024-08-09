@@ -1,0 +1,87 @@
+/* login.component.css */
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background: linear-gradient(to right, #e0e0e0, #ffffff);
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  .container {
+    text-align: center;
+  }
+  
+  .app-name {
+    font-size: 2.5rem;
+    color: #6200ea;
+    margin-bottom: 2rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-top: 6rem;
+  }
+  
+  mat-card {
+    max-width: 400px;
+    margin: 0 auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
+    background-color: #ffffff;
+  }
+  
+  mat-card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    transform: scale(1.02);
+  }
+  
+  mat-card-header {
+    background-color: #6200ea;
+    color: white;
+    border-radius: 8px 8px 0 0;
+  }
+  
+  mat-card-title {
+    font-size: 1.5rem;
+    margin: 0.5rem;
+  }
+  
+  mat-form-field {
+    display: block;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+  }
+  
+  mat-form-field .mat-form-field-label {
+    color: #6200ea;
+  }
+  
+  mat-form-field.mat-form-field-appearance-fill .mat-form-field-flex {
+    background-color: #f3f4f6;
+    border-radius: 4px;
+  }
+  
+  mat-form-field.mat-form-field-appearance-fill .mat-form-field-infix {
+    padding: 8px;
+  }
+  
+  input[matInput] {
+    font-size: 1rem;
+  }
+  
+  button {
+    width: 100%;
+    border-radius: 4px;
+    font-size: 1rem;
+    padding: 12px;
+  }
+  
+  button:hover {
+    background-color: #3700b3;
+    color: white;
+    transform: scale(1.05);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
