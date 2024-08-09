@@ -1,22 +1,26 @@
 <div class="container">
-    <div class="app-name">Ch!me</div>
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Login</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <form (ngSubmit)="onLogin()" #loginForm="ngForm">
-          <mat-form-field appearance="fill">
-            <mat-label>Email</mat-label>
-            <input matInput [(ngModel)]="email" name="email" required>
-          </mat-form-field>
-          <mat-form-field appearance="fill">
-            <mat-label>Password</mat-label>
-            <input matInput [(ngModel)]="password" name="password" type="password" required>
-          </mat-form-field>
-          <button mat-raised-button color="primary" type="submit">Login</button>
-        </form>
-      </mat-card-content>
-    </mat-card>
-  </div>
-  
+  <div class="app-name">Ch!me</div>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ isRegistering ? 'Register' : 'Login' }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form (ngSubmit)="isRegistering ? onRegister() : onLogin()" #authForm="ngForm">
+        <mat-form-field appearance="fill">
+          <mat-label>Email</mat-label>
+          <input matInput [(ngModel)]="email" name="email" required>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Password</mat-label>
+          <input matInput [(ngModel)]="password" name="password" type="password" required>
+        </mat-form-field>
+        <mat-form-field *ngIf="isRegistering">
+          <mat-label>Username</mat-label>
+          <input matInput [(ngModel)]="username" name="username">
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit">{{ isRegistering ? 'Register' : 'Login' }}</button>
+        <button mat-button (click)="toggleForm()">{{ isRegistering ? 'Already have an account? Login' : 'Need an account? Register' }}</button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

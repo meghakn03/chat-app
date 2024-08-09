@@ -5,29 +5,29 @@ import jwt from 'jsonwebtoken'; // For creating JWT tokens
 
 export const register = async (req: Request, res: Response) => {
     const { username, email, password, avatar, online, lastSeen } = req.body;
-    
+
     console.log('Register Request:', req.body);  // Debug line
-    
+
     if (!username || !email || !password) {
         return res.status(400).json({ message: 'Username, email, and password are required' });
     }
-    
+
     try {
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
         }
-    
+
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({
             username,
             email,
             password: hashedPassword,
-            avatar: avatar || 'https://placeimg.com/167/490/any',
-            online: online || false,
-            lastSeen: lastSeen || new Date()
+            avatar: avatar || 'https://placeimg.com/167/490/any', // Default if not provided
+            online: online !== undefined ? online : false, // Default to false if not provided
+            lastSeen: lastSeen || new Date() // Default to current date if not provided
         });
-    
+
         await newUser.save();
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
@@ -35,6 +35,7 @@ export const register = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Server error', error });
     }
 };
+
 
 export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;

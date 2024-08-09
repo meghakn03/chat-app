@@ -18,4 +18,5 @@ const UserSchema: Schema = new Schema({
     lastSeen: { type: Date, default: Date.now }
 });
 
+
 export default mongoose.model<IUser>('User', UserSchema);
