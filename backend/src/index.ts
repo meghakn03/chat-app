@@ -4,6 +4,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes'; // Import new user routes
+import chatRoutes from './routes/chatRoutes'; // Import new chat routes
 import http from 'http';
 import WebSocket from 'ws';
 
@@ -16,6 +17,8 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes); // Use new user routes
+app.use('/api/chats', chatRoutes); // Use new chat routes
+
 
 // Connect to MongoDB
 mongoose.connect('mongodb://localhost:27017/chatapp')
