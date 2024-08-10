@@ -21,9 +21,9 @@
         <li *ngFor="let friend of filteredFriends" (click)="selectFriend(friend)">
           {{ friend.username }}
           <button *ngIf="showAllUsers && !friend.isFriend" (click)="addFriend(friend)">Add as Friend</button>
+          <span *ngIf="showAllUsers && friend.isFriend">Already a friend</span>
         </li>
       </ul>
-
     </aside>
     <section class="chat-area">
       <div class="chat-header">

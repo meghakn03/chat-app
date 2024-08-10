@@ -33,8 +33,6 @@ export class HomeComponent implements OnInit {
       console.warn('Logged-in user ID is not available.');
     }
   }
-  
-  
 
   getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('authToken'); // Assuming token is stored in localStorage
@@ -72,15 +70,16 @@ export class HomeComponent implements OnInit {
                 console.error('Error fetching friends IDs:', error);
             });
     }
-}
-
-
+  }
 
   loadAllUsers() {
     this.http.get<any[]>('http://localhost:4000/api/users/all', { headers: this.getAuthHeaders() })
       .subscribe(users => {
         this.allUsers = users;
-        this.filteredFriends = this.allUsers;
+        this.filteredFriends = this.allUsers.map(user => ({
+          ...user,
+          isFriend: this.friends.some(friend => friend._id === user._id)
+        }));
       });
   }
 
@@ -89,7 +88,10 @@ export class HomeComponent implements OnInit {
     if (searchQuery) {
       this.http.get<any[]>(`http://localhost:4000/api/users/search?query=${searchQuery}`, { headers: this.getAuthHeaders() })
         .subscribe(users => {
-          this.filteredFriends = users;
+          this.filteredFriends = users.map(user => ({
+            ...user,
+            isFriend: this.friends.some(friend => friend._id === user._id)
+          }));
         });
     }
   }
@@ -160,5 +162,4 @@ export class HomeComponent implements OnInit {
       console.warn('User data not found in localStorage.');
     }
   }
-  
 }
