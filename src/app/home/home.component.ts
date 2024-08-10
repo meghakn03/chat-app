@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule], // Add CommonModule and FormsModule here
+  imports: [CommonModule, FormsModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
 })
@@ -27,11 +27,15 @@ export class HomeComponent implements OnInit {
   constructor(private router: Router, private http: HttpClient) {}
 
   ngOnInit() {
-    console.log('ngOnInit called'); // Debugging statement
+    console.log('ngOnInit called');
     this.getLoggedInUser(); // Get logged-in user ID first
     if (this.loggedInUserId) {
       this.loadFriends(); // Call loadFriends() only if user ID is available
       this.setupWebSocket();
+      // Optionally, load messages for the default or initially selected friend
+      if (this.selectedFriend) {
+        this.loadChatMessages(this.selectedFriend._id);
+      }
     } else {
       console.warn('Logged-in user ID is not available.');
     }
@@ -69,10 +73,12 @@ export class HomeComponent implements OnInit {
   }
   
   private displayMessage(message: string) {
-    // Assuming message is a JSON string like '{"text": "Hello", "senderId": "some-id"}'
     try {
       const msg = JSON.parse(message);
-      this.messages.push(msg); // Add message to the array
+      if (msg && msg.text && msg.senderId) {
+        this.messages.push(msg); // Add message to the array
+        // Optional: Scroll to bottom of chat messages if needed
+      }
     } catch (e) {
       console.error('Error parsing message:', e);
     }
@@ -164,16 +170,48 @@ export class HomeComponent implements OnInit {
 
   selectFriend(friend: any) {
     this.selectedFriend = friend;
+    this.loadChatMessages(friend._id); // Load messages when a friend is selected
   }
 
   sendMessage() {
-    if (this.message.trim() && this.ws) {
+    if (this.message.trim() && this.selectedFriend && this.loggedInUserId) {
       const msg = {
         text: this.message,
-        senderId: this.loggedInUserId
+        senderId: this.loggedInUserId,
+        recipientId: this.selectedFriend._id
       };
-      this.ws.send(JSON.stringify(msg)); // Send message as JSON string
-      this.message = '';
+      
+      // Send POST request to save the message to the database
+      this.http.post('http://localhost:4000/api/chats', msg, { headers: this.getAuthHeaders() })
+        .subscribe(
+          response => {
+            console.log('Message saved successfully:', response);
+            // Send message via WebSocket after saving
+            if (this.ws) {
+              this.ws.send(JSON.stringify(msg)); // Send message as JSON string
+              this.message = ''; // Clear the input after sending
+            }
+          },
+          error => {
+            console.error('Error saving message:', error);
+            alert('Failed to send message.');
+          }
+        );
+    } else {
+      alert('Message is empty or no friend selected.');
+    }
+  }
+
+  loadChatMessages(friendId: string) {
+    if (this.loggedInUserId) {
+      const endpoint = `http://localhost:4000/api/chats/${this.loggedInUserId}/${friendId}`;
+      this.http.get<any[]>(endpoint, { headers: this.getAuthHeaders() })
+        .subscribe(messages => {
+          this.messages = messages; // Update chat messages
+          console.log('Chat messages loaded:', messages);
+        }, error => {
+          console.error('Error fetching chat messages:', error);
+        });
     }
   }
 
@@ -207,7 +245,7 @@ export class HomeComponent implements OnInit {
       this.loggedInUserId = parsedUserData._id;
       console.log('Logged-in user ID:', this.loggedInUserId); // Debugging statement
     } else {
-      console.warn('User data not found in localStorage.');
+      console.warn('No user data found in localStorage.');
     }
   }
 }
