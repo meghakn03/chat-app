@@ -38,6 +38,11 @@ export class LoginComponent {
     this.authService.login(this.email, this.password).subscribe(response => {
       console.log('Login successful:', response);
       alert(`Login successful! Your user ID is: ${response.user._id}`);
+      
+      // Store user data in localStorage
+      localStorage.setItem('authToken', response.token); // Store the token
+      localStorage.setItem('userData', JSON.stringify(response.user)); // Store user data
+  
       this.router.navigate(['/home']); // Redirect to home or another page
     }, error => {
       console.error('Login error:', error);

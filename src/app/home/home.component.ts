@@ -20,12 +20,16 @@ export class HomeComponent implements OnInit {
   isFriendsListCollapsed: boolean = false;
   showAllUsers: boolean = false;
   searchTerm: string = '';
+  loggedInUserId: string | null = null; // To store the logged-in user's ID
 
   constructor(private router: Router, private http: HttpClient) {}
 
   ngOnInit() {
+    console.log('ngOnInit called'); // Debugging statement
     this.loadFriends();
+    this.getLoggedInUser(); // Get logged-in user ID on initialization
   }
+  
 
   getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('authToken'); // Assuming token is stored in localStorage
@@ -62,8 +66,25 @@ export class HomeComponent implements OnInit {
   }
 
   addFriend(user: any) {
-    console.log(`Add ${user.username} as a friend`);
-    // Implement logic to send friend request
+    if (this.loggedInUserId) {
+      const body = {
+        userId: this.loggedInUserId,
+        friendId: user._id
+      };
+      
+      this.http.post('http://localhost:4000/api/users/add-friend', body, { headers: this.getAuthHeaders() })
+        .subscribe(response => {
+          console.log('Friend added successfully:', response);
+          alert(`Added ${user.username} as a friend!`);
+          // Optionally update the friends list
+          this.loadFriends();
+        }, error => {
+          console.error('Error adding friend:', error);
+          alert('Failed to add friend.');
+        });
+    } else {
+      alert('User is not logged in.');
+    }
   }
 
   selectFriend(friend: any) {
@@ -98,4 +119,17 @@ export class HomeComponent implements OnInit {
       this.filteredFriends = this.friends;
     }
   }
+
+  private getLoggedInUser() {
+    // Retrieve user data from localStorage
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      const parsedUserData = JSON.parse(userData);
+      this.loggedInUserId = parsedUserData._id;
+      console.log('Logged-in user ID:', this.loggedInUserId); // Debugging statement
+    } else {
+      console.warn('User data not found in localStorage.');
+    }
+  }
+  
 }
