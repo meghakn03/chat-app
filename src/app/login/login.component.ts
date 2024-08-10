@@ -37,18 +37,21 @@ export class LoginComponent {
   onLogin() {
     this.authService.login(this.email, this.password).subscribe(response => {
       console.log('Login successful:', response);
+      alert(`Login successful! Your user ID is: ${response.user._id}`);
       this.router.navigate(['/home']); // Redirect to home or another page
     }, error => {
       console.error('Login error:', error);
     });
   }
-
+  
   onRegister() {
     this.authService.register(this.email, this.password, this.username).subscribe(response => {
       console.log('Registration successful:', response);
+      alert(`Registration successful! Your user ID is: ${response.user._id}`);
       this.isRegistering = false; // Switch to login form
     }, error => {
       console.error('Registration error:', error);
     });
   }
+  
 }
