@@ -21,6 +21,7 @@ export class HomeComponent implements OnInit {
   showAllUsers: boolean = false;
   searchTerm: string = '';
   loggedInUserId: string | null = null; // To store the logged-in user's ID
+  ws: WebSocket | null = null; // WebSocket connection
 
   constructor(private router: Router, private http: HttpClient) {}
 
@@ -29,9 +30,48 @@ export class HomeComponent implements OnInit {
     this.getLoggedInUser(); // Get logged-in user ID first
     if (this.loggedInUserId) {
       this.loadFriends(); // Call loadFriends() only if user ID is available
+      this.setupWebSocket();
     } else {
       console.warn('Logged-in user ID is not available.');
     }
+  }
+
+  setupWebSocket() {
+    // Initialize WebSocket connection
+    this.ws = new WebSocket('ws://localhost:4000');
+  
+    // Handle incoming messages
+    this.ws.onmessage = (event) => {
+      if (event.data instanceof Blob) {
+        // Create a FileReader to read the Blob
+        const reader = new FileReader();
+        reader.onload = () => {
+          const message = reader.result as string;
+          this.displayMessage(message);
+        };
+        reader.readAsText(event.data); // Read Blob as text
+      } else {
+        // Handle other types of messages if necessary
+        this.displayMessage(event.data);
+      }
+    };
+  
+    // Handle WebSocket connection open
+    this.ws.onopen = () => {
+      console.log('WebSocket connection opened');
+    };
+  
+    // Handle WebSocket connection close
+    this.ws.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+  }
+  
+  private displayMessage(message: string) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('msgCtn');
+    msgDiv.innerHTML = message;
+    document.querySelector('.chat-messages')?.appendChild(msgDiv);
   }
 
   getAuthHeaders(): HttpHeaders {
@@ -123,8 +163,8 @@ export class HomeComponent implements OnInit {
   }
 
   sendMessage() {
-    if (this.message.trim()) {
-      console.log('Sending message:', this.message);
+    if (this.message.trim() && this.ws) {
+      this.ws.send(this.message);
       this.message = '';
     }
   }
