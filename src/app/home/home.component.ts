@@ -26,9 +26,14 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     console.log('ngOnInit called'); // Debugging statement
-    this.loadFriends();
-    this.getLoggedInUser(); // Get logged-in user ID on initialization
+    this.getLoggedInUser(); // Get logged-in user ID first
+    if (this.loggedInUserId) {
+      this.loadFriends(); // Call loadFriends() only if user ID is available
+    } else {
+      console.warn('Logged-in user ID is not available.');
+    }
   }
+  
   
 
   getAuthHeaders(): HttpHeaders {
@@ -40,12 +45,36 @@ export class HomeComponent implements OnInit {
   }
 
   loadFriends() {
-    this.http.get<any[]>('/api/friends', { headers: this.getAuthHeaders() })
-      .subscribe(friends => {
-        this.friends = friends;
-        this.filteredFriends = this.friends;
-      });
-  }
+    if (this.loggedInUserId) {
+        console.log('Fetching friends for user ID:', this.loggedInUserId); // Log the logged-in user ID
+
+        // First, get the friends' IDs
+        this.http.get<string[]>(`http://localhost:4000/api/users/${this.loggedInUserId}/friends`, { headers: this.getAuthHeaders() })
+            .subscribe(friendIds => {
+                console.log('Friend IDs fetched:', friendIds); // Log the fetched friend IDs
+
+                if (friendIds.length > 0) {
+                    // Then, get detailed information for these friends
+                    this.http.post<any[]>('http://localhost:4000/api/users/by-ids', { ids: friendIds }, { headers: this.getAuthHeaders() })
+                        .subscribe(friendsData => {
+                            console.log('Friends data fetched:', friendsData); // Log the fetched friends' data
+                            this.friends = friendsData;
+                            this.filteredFriends = this.friends;
+                        }, error => {
+                            console.error('Error fetching friends data:', error);
+                        });
+                } else {
+                    console.log('No friends found.'); // Log if no friends are found
+                    this.friends = [];
+                    this.filteredFriends = [];
+                }
+            }, error => {
+                console.error('Error fetching friends IDs:', error);
+            });
+    }
+}
+
+
 
   loadAllUsers() {
     this.http.get<any[]>('http://localhost:4000/api/users/all', { headers: this.getAuthHeaders() })

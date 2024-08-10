@@ -72,3 +72,22 @@ export const addFriend = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Server error', error });
     }
 };
+
+// Get users by IDs
+export const getUsersByIds = async (req: Request, res: Response) => {
+    const { ids } = req.body;
+
+    console.log('Fetching users with IDs:', ids); // Log the IDs being fetched
+
+    try {
+        const users = await User.find({ '_id': { $in: ids } }).select('username email avatar');
+        console.log('Users fetched:', users); // Log the fetched users
+        res.status(200).json(users);
+    } catch (error) {
+        console.error('Error fetching users by IDs:', error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+
+
