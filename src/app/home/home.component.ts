@@ -16,12 +16,13 @@ export class HomeComponent implements OnInit {
   allUsers: any[] = [];
   filteredFriends: any[] = [];
   selectedFriend: any = null;
-  message: string = '';
+  messages: { text: string, senderId: string }[] = []; // Array to store messages
   isFriendsListCollapsed: boolean = false;
   showAllUsers: boolean = false;
   searchTerm: string = '';
   loggedInUserId: string | null = null; // To store the logged-in user's ID
   ws: WebSocket | null = null; // WebSocket connection
+  message: string = ''; // New property for the message being sent
 
   constructor(private router: Router, private http: HttpClient) {}
 
@@ -68,10 +69,13 @@ export class HomeComponent implements OnInit {
   }
   
   private displayMessage(message: string) {
-    const msgDiv = document.createElement('div');
-    msgDiv.classList.add('msgCtn');
-    msgDiv.innerHTML = message;
-    document.querySelector('.chat-messages')?.appendChild(msgDiv);
+    // Assuming message is a JSON string like '{"text": "Hello", "senderId": "some-id"}'
+    try {
+      const msg = JSON.parse(message);
+      this.messages.push(msg); // Add message to the array
+    } catch (e) {
+      console.error('Error parsing message:', e);
+    }
   }
 
   getAuthHeaders(): HttpHeaders {
@@ -164,7 +168,11 @@ export class HomeComponent implements OnInit {
 
   sendMessage() {
     if (this.message.trim() && this.ws) {
-      this.ws.send(this.message);
+      const msg = {
+        text: this.message,
+        senderId: this.loggedInUserId
+      };
+      this.ws.send(JSON.stringify(msg)); // Send message as JSON string
       this.message = '';
     }
   }

@@ -30,8 +30,10 @@
         <h2>{{ selectedFriend ? selectedFriend.username : 'Select a friend' }}</h2>
       </div>
       <div class="chat-messages">
-        <!-- Messages will appear here -->
-      </div>
+        <div *ngFor="let msg of messages" [ngClass]="{'sent': msg.senderId === loggedInUserId, 'received': msg.senderId !== loggedInUserId}">
+          <p>{{ msg.text }}</p>
+        </div>
+      </div>      
       <div class="chat-input">
         <input [(ngModel)]="message" placeholder="Type a message..." />
         <button (click)="sendMessage()">Send</button>
