@@ -15,9 +15,10 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
-  background-color: #003d7d;
+  background-color: #6a9fd8;
   color: #fff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin-bottom:1rem;
 }
 
 .header h1 {
@@ -55,6 +56,20 @@
   overflow-y: auto;
   transition: transform 0.3s;
   box-shadow: 4px 0 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  padding-bottom: 20px; /* Added padding at the bottom to accommodate button */
+  margin-left:1rem;
+  border-radius: 20px;
+}
+
+.friends-list h2 {
+  padding: 20px;
+  background-color: #04284d;
+  color: #ffffff;
+  text-align: center;
+  margin: 0;
+  font-size: 1.25rem;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .friends-list.collapsed {
@@ -69,19 +84,38 @@
 
 .friends-list li {
   padding: 15px;
-  margin-bottom: 10px;
+  margin: 10px auto;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.3s;
-  border-radius: 8px;
+  border-radius: 12px;
   background-color: #f4f6f9;
-  font-weight: 500;
+  transition: background-color 0.3s, transform 0.3s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  border: 2px solid #0047a5; /* Border around each user */
 }
 
 .friends-list li:hover {
   background-color: #e0e0e0;
   transform: scale(1.02);
-  color: #003d7d;
 }
+
+.friends-list li button {
+  background-color: #0047a5;
+  color: #ffffff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.friends-list li button:hover {
+  background-color: #003d7d;
+}
+
+
 
 .chat-area {
   flex: 1;
@@ -177,4 +211,42 @@
   .header-buttons button {
     margin: 5px 0;
   }
+}
+
+.search-bar {
+  width: 90%;
+  padding: 10px;
+  margin: 10px auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  display: block;
+  transition: border-color 0.3s;
+}
+
+.search-bar:focus {
+  border-color: #0047a5;
+  outline: none;
+}
+
+.friends-list .toggle-friends-button,
+.friends-list > button {
+  width: auto; /* Adjust width to auto for better centering */
+  margin: 10px auto; /* Center the button horizontally */
+  background-color: #84b0e8;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px; /* Added padding for better appearance */
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  position: sticky;
+  top: 72px; /* Adjust this value if needed to match the height of your header and search bar */
+  z-index: 1;
+  text-align: center; /* Ensure text is centered within the button */
+  margin-left:1rem;
+}
+
+.friends-list .toggle-friends-button:hover,
+.friends-list > button:hover {
+  background-color: #003d7d;
 }

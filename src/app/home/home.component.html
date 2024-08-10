@@ -1,36 +1,41 @@
 <div class="container">
-    <header class="header">
-      <h1>CH!ME</h1>
-      <div class="header-buttons">
-        <button (click)="logout()">Log Out</button>
-        <button (click)="goToAccount()">Account</button>
-        <button (click)="toggleFriendsList()" class="toggle-friends-button">
-          <span *ngIf="!isFriendsListCollapsed">Hide Friends</span>
-          <span *ngIf="isFriendsListCollapsed">Show Friends</span>
-        </button>
-      </div>
-    </header>
-    <div class="main-content">
-      <aside [ngClass]="{'friends-list': true, 'collapsed': isFriendsListCollapsed}">
-        <h2>Friends</h2>
-        <ul>
-          <li *ngFor="let friend of friends" (click)="selectFriend(friend)">
-            {{ friend.name }}
-          </li>
-        </ul>
-      </aside>
-      <section class="chat-area">
-        <div class="chat-header">
-          <h2>{{ selectedFriend ? selectedFriend.name : 'Select a friend' }}</h2>
-        </div>
-        <div class="chat-messages">
-          <!-- Messages will appear here -->
-        </div>
-        <div class="chat-input">
-          <input [(ngModel)]="message" placeholder="Type a message..." />
-          <button (click)="sendMessage()">Send</button>
-        </div>
-      </section>
+  <header class="header">
+    <h1>CH!ME</h1>
+    <div class="header-buttons">
+      <button (click)="logout()">Log Out</button>
+      <button (click)="goToAccount()">Account</button>
+      <button (click)="toggleFriendsList()" class="toggle-friends-button">
+        <span *ngIf="!isFriendsListCollapsed">Hide Friends</span>
+        <span *ngIf="isFriendsListCollapsed">Show Friends</span>
+      </button>
     </div>
+  </header>
+  <div class="main-content">
+    <aside [ngClass]="{'friends-list': true, 'collapsed': isFriendsListCollapsed}">
+      <h2>Friends</h2>
+      <input type="text" [(ngModel)]="searchTerm" (keyup.enter)="searchUsers()" placeholder="Search friends..." class="search-bar" />
+      <button (click)="toggleAllUsers()">
+        {{ showAllUsers ? 'Hide All Users' : 'Show All Users' }}
+      </button>
+      <ul>
+        <li *ngFor="let friend of filteredFriends" (click)="selectFriend(friend)">
+          {{ friend.username }}
+          <button *ngIf="showAllUsers && !friend.isFriend" (click)="addFriend(friend)">Add as Friend</button>
+        </li>
+      </ul>
+
+    </aside>
+    <section class="chat-area">
+      <div class="chat-header">
+        <h2>{{ selectedFriend ? selectedFriend.username : 'Select a friend' }}</h2>
+      </div>
+      <div class="chat-messages">
+        <!-- Messages will appear here -->
+      </div>
+      <div class="chat-input">
+        <input [(ngModel)]="message" placeholder="Type a message..." />
+        <button (click)="sendMessage()">Send</button>
+      </div>
+    </section>
   </div>
-  
+</div>
