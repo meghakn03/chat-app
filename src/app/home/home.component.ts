@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ChangeDetectorRef } from '@angular/core';
+
 
 @Component({
   selector: 'app-home',
@@ -12,11 +14,12 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit {
+  @ViewChild('chatContainer') chatContainer!: ElementRef; // Reference to chat container
   friends: any[] = [];
   allUsers: any[] = [];
   filteredFriends: any[] = [];
   selectedFriend: any = null;
-  messages: { text: string, senderId: string }[] = []; // Array to store messages
+  messages: { text: string, senderId: string, timestamp: Date }[] = []; // Updated messages array
   isFriendsListCollapsed: boolean = false;
   showAllUsers: boolean = false;
   searchTerm: string = '';
@@ -24,15 +27,13 @@ export class HomeComponent implements OnInit {
   ws: WebSocket | null = null; // WebSocket connection
   message: string = ''; // New property for the message being sent
 
-  constructor(private router: Router, private http: HttpClient) {}
+  constructor(private router: Router, private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
-    console.log('ngOnInit called');
     this.getLoggedInUser(); // Get logged-in user ID first
     if (this.loggedInUserId) {
       this.loadFriends(); // Call loadFriends() only if user ID is available
       this.setupWebSocket();
-      // Optionally, load messages for the default or initially selected friend
       if (this.selectedFriend) {
         this.loadChatMessages(this.selectedFriend._id);
       }
@@ -40,6 +41,24 @@ export class HomeComponent implements OnInit {
       console.warn('Logged-in user ID is not available.');
     }
   }
+
+  ngAfterViewChecked() {
+    // Scroll to bottom after every check
+    this.scrollToBottom();
+  }
+
+  
+  // Scroll to the bottom of the chat
+  scrollToBottom(): void {
+    try {
+      if (this.chatContainer) {
+        this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
+      }
+    } catch (err) {
+      console.error('Error scrolling to bottom:', err);
+    }
+  }
+
 
   setupWebSocket() {
     // Initialize WebSocket connection
@@ -76,8 +95,8 @@ export class HomeComponent implements OnInit {
     try {
       const msg = JSON.parse(message);
       if (msg && msg.text && msg.senderId) {
-        this.messages.push(msg); // Add message to the array
-        // Optional: Scroll to bottom of chat messages if needed
+        this.messages.push({ ...msg, timestamp: new Date(msg.timestamp) }); // Include timestamp
+        this.scrollToBottom(); // Scroll to the bottom after adding the message
       }
     } catch (e) {
       console.error('Error parsing message:', e);
@@ -168,28 +187,31 @@ export class HomeComponent implements OnInit {
     }
   }
 
+
   selectFriend(friend: any) {
     this.selectedFriend = friend;
-    this.loadChatMessages(friend._id); // Load messages when a friend is selected
+    this.loadChatMessages(friend._id);
   }
 
-  sendMessage() {
+  
+
+   sendMessage() {
     if (this.message.trim() && this.selectedFriend && this.loggedInUserId) {
       const msg = {
         text: this.message,
         senderId: this.loggedInUserId,
-        recipientId: this.selectedFriend._id
+        recipientId: this.selectedFriend._id,
+        timestamp: new Date() // Include the current timestamp
       };
-      
-      // Send POST request to save the message to the database
+
       this.http.post('http://localhost:4000/api/chats', msg, { headers: this.getAuthHeaders() })
         .subscribe(
           response => {
             console.log('Message saved successfully:', response);
-            // Send message via WebSocket after saving
             if (this.ws) {
-              this.ws.send(JSON.stringify(msg)); // Send message as JSON string
-              this.message = ''; // Clear the input after sending
+              this.ws.send(JSON.stringify(msg));
+              this.message = '';
+              setTimeout(() => this.scrollToBottom(), 0); // Scroll to bottom after message is sent
             }
           },
           error => {
@@ -207,8 +229,12 @@ export class HomeComponent implements OnInit {
       const endpoint = `http://localhost:4000/api/chats/${this.loggedInUserId}/${friendId}`;
       this.http.get<any[]>(endpoint, { headers: this.getAuthHeaders() })
         .subscribe(messages => {
-          this.messages = messages; // Update chat messages
+          this.messages = messages.map(msg => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp)
+          }));
           console.log('Chat messages loaded:', messages);
+          setTimeout(() => this.scrollToBottom(), 0); // Scroll to bottom after messages are loaded
         }, error => {
           console.error('Error fetching chat messages:', error);
         });

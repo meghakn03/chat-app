@@ -29,14 +29,22 @@
       <div class="chat-header">
         <h2>{{ selectedFriend ? selectedFriend.username : 'Select a friend' }}</h2>
       </div>
-      <div class="chat-messages">
+      <div class="chat-messages" >
+      <div class="chat-messages" #chatContainer>
         <div *ngFor="let msg of messages" [ngClass]="{'sent': msg.senderId === loggedInUserId, 'received': msg.senderId !== loggedInUserId}">
           <p>{{ msg.text }}</p>
+          <small>{{ msg.timestamp | date: 'shortTime' }}</small> <!-- Display time -->
         </div>
-      </div>      
+      </div> 
+    </div>     
       <div class="chat-input">
-        <input [(ngModel)]="message" placeholder="Type a message..." />
-        <button (click)="sendMessage()">Send</button>
+        <input
+        type="text"
+        [(ngModel)]="message"
+        (keydown.enter)="sendMessage()" 
+        placeholder="Type your message..."
+      />        
+      <button (click)="sendMessage()">Send</button>
       </div>
     </section>
   </div>
