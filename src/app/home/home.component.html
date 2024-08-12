@@ -38,7 +38,7 @@
           <span *ngIf="showAllUsers && friend.isFriend">Already a friend</span>
         </li>
         <ul>
-          <li *ngFor="let group of groups" (click)="toggleGroupDropdown(group._id)">
+          <li *ngFor="let group of groups" (click)="handleGroupClick(group)">
             <div class="group-details">
               <p>{{ group.groupName }}</p>
               <!-- Toggle the visibility of the group members container -->
@@ -57,24 +57,30 @@
       </ul>
     </aside>
     <section class="chat-area">
-      <div class="chat-header">
-        <h2>{{ selectedFriend ? selectedFriend.username : selectedGroup ? selectedGroup.groupName : 'Select a friend or group' }}</h2>
-      </div>
-      <div class="chat-messages" #chatContainer>
-        <div *ngFor="let msg of messages" [ngClass]="{'sent': msg.senderId === loggedInUserId, 'received': msg.senderId !== loggedInUserId}">
-          <p>{{ msg.text }}</p>
-          <small>{{ msg.timestamp | date: 'shortTime' }}</small>
-        </div>
-      </div>
-      <div class="chat-input">
-        <input
-          type="text"
-          [(ngModel)]="message"
-          (keydown.enter)="sendMessage()" 
-          placeholder="Type your message..."
-        />        
-        <button (click)="sendMessage()">Send</button>
-      </div>
+     <!-- Modify the chat header to reflect group selection -->
+<div class="chat-header">
+  <h2>{{ selectedFriend ? selectedFriend.username : selectedGroup ? selectedGroup.groupName : 'Select a friend or group' }}</h2>
+</div>
+
+<!-- Group message section -->
+<div class="chat-messages" #chatContainer>
+  <div *ngFor="let msg of messages" [ngClass]="{'sent': msg.senderId === loggedInUserId, 'received': msg.senderId !== loggedInUserId}">
+    <p>{{ msg.text }}</p>
+    <small>{{ msg.timestamp | date: 'shortTime' }}</small>
+  </div>
+</div>
+
+<!-- Input for sending messages -->
+<div class="chat-input">
+  <input
+    type="text"
+    [(ngModel)]="message"
+    (keydown.enter)="sendMessage()"
+    placeholder="Type your message..."
+  />
+  <button (click)="sendMessage()">Send</button>
+</div>
+
     </section>
   </div>
 </div>
