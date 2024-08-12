@@ -17,34 +17,49 @@
       <button (click)="toggleAllUsers()">
         {{ showAllUsers ? 'Hide All Users' : 'Show All Users' }}
       </button>
+      <button *ngIf="!creatingGroup" (click)="startGroupCreation()">
+        Create Group
+      </button>
+      <div *ngIf="creatingGroup" class="group-creation">
+        <h3>Select Friends for Group</h3>
+        <ul>
+          <li *ngFor="let friend of filteredFriends">
+            <label>
+              <input type="checkbox" [(ngModel)]="friend.selected" /> {{ friend.username }}
+            </label>
+          </li>
+        </ul>
+        <button class="done-button" (click)="createGroup()">Done</button>
+      </div>
       <ul>
         <li *ngFor="let friend of filteredFriends" (click)="selectFriend(friend)">
           {{ friend.username }}
           <button *ngIf="showAllUsers && !friend.isFriend" (click)="addFriend(friend)">Add as Friend</button>
           <span *ngIf="showAllUsers && friend.isFriend">Already a friend</span>
         </li>
+        <li *ngFor="let group of groups" (click)="selectGroup(group)">
+          {{ group.groupName }} (Group)
+        </li>
       </ul>
     </aside>
     <section class="chat-area">
       <div class="chat-header">
-        <h2>{{ selectedFriend ? selectedFriend.username : 'Select a friend' }}</h2>
+        <h2>{{ selectedFriend ? selectedFriend.username : selectedGroup ? selectedGroup.groupName : 'Select a friend or group' }}</h2>
       </div>
-      <div class="chat-messages" >
       <div class="chat-messages" #chatContainer>
         <div *ngFor="let msg of messages" [ngClass]="{'sent': msg.senderId === loggedInUserId, 'received': msg.senderId !== loggedInUserId}">
           <p>{{ msg.text }}</p>
-          <small>{{ msg.timestamp | date: 'shortTime' }}</small> <!-- Display time -->
+          <small>{{ msg.timestamp | date: 'shortTime' }}</small>
         </div>
-      </div> 
-    </div>     
+      </div>
       <div class="chat-input">
         <input
-        type="text"
-        [(ngModel)]="message"
-        (keydown.enter)="sendMessage()" 
-        placeholder="Type your message..."
-      />        
-      <button (click)="sendMessage()">Send</button>
+          type="text"
+          [(ngModel)]="message"
+          (keydown.enter)="sendMessage()" 
+          placeholder="Type your message..."
+        />        
+        <button (click)="sendMessage()">Send</button>
       </div>
     </section>
   </div>

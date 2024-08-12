@@ -17,8 +17,10 @@ export class HomeComponent implements OnInit {
   @ViewChild('chatContainer') chatContainer!: ElementRef; // Reference to chat container
   friends: any[] = [];
   allUsers: any[] = [];
+  groups: any[] = []; // Array to hold groups
   filteredFriends: any[] = [];
   selectedFriend: any = null;
+  selectedGroup: any = null; // Track selected group
   messages: { text: string, senderId: string, timestamp: Date }[] = []; // Updated messages array
   isFriendsListCollapsed: boolean = false;
   showAllUsers: boolean = false;
@@ -26,6 +28,7 @@ export class HomeComponent implements OnInit {
   loggedInUserId: string | null = null; // To store the logged-in user's ID
   ws: WebSocket | null = null; // WebSocket connection
   message: string = ''; // New property for the message being sent
+  creatingGroup: boolean = false; // Flag for group creation mode
 
   constructor(private router: Router, private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
@@ -33,6 +36,7 @@ export class HomeComponent implements OnInit {
     this.getLoggedInUser(); // Get logged-in user ID first
     if (this.loggedInUserId) {
       this.loadFriends(); // Call loadFriends() only if user ID is available
+      this.loadGroups(); // Load existing groups
       this.setupWebSocket();
       if (this.selectedFriend) {
         this.loadChatMessages(this.selectedFriend._id);
@@ -262,6 +266,44 @@ export class HomeComponent implements OnInit {
       this.filteredFriends = this.friends;
     }
   }
+
+  startGroupCreation() {
+    this.creatingGroup = true;
+    this.filteredFriends.forEach(friend => friend.selected = false); // Reset selections
+  }
+
+  createGroup() {
+    const selectedFriends = this.filteredFriends.filter(friend => friend.selected);
+    if (selectedFriends.length > 0) {
+      const groupName = prompt("Enter group name:");
+      if (groupName) {
+        const newGroup = {
+          groupName,
+          admin: this.loggedInUserId,
+          members: selectedFriends.map(friend => friend._id),
+          createdAt: new Date(),
+        };
+        this.groups.push(newGroup); // Add the new group to the list
+        this.creatingGroup = false; // Exit group creation mode
+      }
+    } else {
+      alert("Please select at least one friend to create a group.");
+    }
+  }
+
+  selectGroup(group: any) {
+    this.selectedGroup = group;
+    this.selectedFriend = null; // Deselect any selected friend
+    this.loadChatMessages(group._id); // Load group messages
+  }
+
+  loadGroups() {
+    // Fetch groups for the logged-in user (to be implemented later with API)
+    // Example:
+    // this.http.get<any[]>(`http://localhost:4000/api/groups/${this.loggedInUserId}`)
+    //   .subscribe(groups => this.groups = groups);
+  }
+
 
   private getLoggedInUser() {
     // Retrieve user data from localStorage

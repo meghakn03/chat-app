@@ -281,3 +281,34 @@
 .friends-list > button:hover {
   background-color: #003d7d;
 }
+
+/* Styling for the Done button */
+.done-button {
+  display: block;
+  background-color: #0c0c0c;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  margin: 20px auto;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  font-weight: 500;
+  text-align: center;
+  width: auto; /* Adjust the width according to the content */
+}
+
+/* Hover effect */
+.done-button:hover {
+  background-color: #003d7d;
+  transform: scale(1.05);
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+  .done-button {
+    padding: 12px 24px;
+    margin: 15px auto;
+    font-size: 1rem;
+  }
+}
