@@ -7,7 +7,8 @@ interface IUser extends Document {
     avatar?: string;
     online?: boolean;
     lastSeen?: Date;
-    friends: mongoose.Schema.Types.ObjectId[]; // Array of ObjectId references to other users
+    friends: mongoose.Schema.Types.ObjectId[];
+    groups: mongoose.Schema.Types.ObjectId[]; // Array of ObjectId references to groups
 }
 
 const UserSchema: Schema = new Schema({
@@ -17,8 +18,8 @@ const UserSchema: Schema = new Schema({
     avatar: { type: String, default: 'https://placeimg.com/167/490/any' },
     online: { type: Boolean, default: false },
     lastSeen: { type: Date, default: Date.now },
-    friends: [{ type: Schema.Types.ObjectId, ref: 'User' }]  // Reference to User model
+    friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    groups: [{ type: Schema.Types.ObjectId, ref: 'Group' }]  // Reference to Group model
 });
-
 
 export default mongoose.model<IUser>('User', UserSchema);

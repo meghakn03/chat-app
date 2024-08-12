@@ -5,6 +5,7 @@ import bodyParser from 'body-parser';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes'; // Import new user routes
 import chatRoutes from './routes/chatRoutes'; // Import new chat routes
+import groupRoutes from './routes/groupRoutes';  // Import new group routes
 import http from 'http';
 import WebSocket from 'ws';
 
@@ -18,6 +19,7 @@ app.use(bodyParser.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes); // Use new user routes
 app.use('/api/chats', chatRoutes); // Use new chat routes
+app.use('/api/groups', groupRoutes);  // Use new group routes
 
 
 // Connect to MongoDB
