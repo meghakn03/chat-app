@@ -278,18 +278,31 @@ export class HomeComponent implements OnInit {
       const groupName = prompt("Enter group name:");
       if (groupName) {
         const newGroup = {
-          groupName,
-          admin: this.loggedInUserId,
-          members: selectedFriends.map(friend => friend._id),
-          createdAt: new Date(),
+          userId: this.loggedInUserId, // logged-in user's _id
+          groupName, // group name entered by the user
+          memberIds: selectedFriends.map(friend => friend._id), // array of selected friend's _ids
         };
-        this.groups.push(newGroup); // Add the new group to the list
-        this.creatingGroup = false; // Exit group creation mode
+  
+        // Make a POST request to the backend to create the group
+        this.http.post('http://localhost:4000/api/groups/create-group', newGroup, { headers: this.getAuthHeaders() })
+          .subscribe(
+            (response: any) => {
+              console.log('Group created successfully:', response.group);
+              this.groups.push(response.group); // Add the created group to the list of groups
+              this.creatingGroup = false; // Exit group creation mode
+              alert('Group created successfully!');
+            },
+            error => {
+              console.error('Error creating group:', error);
+              alert('Failed to create group.');
+            }
+          );
       }
     } else {
       alert("Please select at least one friend to create a group.");
     }
   }
+  
 
   selectGroup(group: any) {
     this.selectedGroup = group;
