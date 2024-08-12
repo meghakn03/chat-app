@@ -50,7 +50,8 @@
 }
 
 .friends-list {
-  width: 300px;
+  width: 400px;
+  height: calc(100vh - 140px); /* Adjust this based on your header and other content height */
   background-color: #ffffff;
   border-right: 1px solid #e0e0e0;
   overflow-y: auto;
@@ -97,8 +98,8 @@
 }
 
 .friends-list li:hover {
-  background-color: #e0e0e0;
-  color:black;
+  background-color: #050505;
+  color:rgb(249, 244, 244);
   transform: scale(1.02);
 }
 
@@ -263,7 +264,7 @@
 .friends-list > button {
   width: auto; /* Adjust width to auto for better centering */
   margin: 10px auto; /* Center the button horizontally */
-  background-color: #84b0e8;
+  background-color: #5895ef;
   color: #ffffff;
   border: none;
   padding: 10px 20px; /* Added padding for better appearance */
@@ -279,7 +280,7 @@
 
 .friends-list .toggle-friends-button:hover,
 .friends-list > button:hover {
-  background-color: #003d7d;
+  background-color: #090909;
 }
 
 /* Styling for the Done button */
@@ -313,8 +314,14 @@
   }
 }
 
+.group-details {
+  width: 100%; /* Ensure it takes the full width of the parent container */
+  padding: 10px;
+  box-sizing: border-box; /* Include padding in the element's total width */
+}
+
 .group-members-container {
-  width: 100%;
+  width: 100%; /* Adjust based on padding and borders */
   max-height: 300px; /* Adjust height as needed */
   overflow-y: auto;
   overflow-x: hidden; /* Prevent horizontal scrolling */
@@ -325,6 +332,7 @@
   background-color: #ffffff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   justify-content: center;
+  box-sizing: border-box; /* Add this if not already applied */
 }
 
 .group-members-container h3 {
@@ -339,6 +347,7 @@
   list-style: none;
   padding: 0;
   margin: 0;
+  width: 100%; /* Ensure ul takes full width of the container */
 }
 
 .group-members-container li {
@@ -356,8 +365,8 @@
 }
 
 .group-members-container li:hover {
-  background-color: #e0e0e0;
-  color: black;
+  background-color: #090909;
+  color: rgb(251, 244, 244);
   transform: scale(1.02);
 }
 
