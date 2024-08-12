@@ -312,3 +312,84 @@
     font-size: 1rem;
   }
 }
+
+.group-members-container {
+  width: 100%;
+  max-height: 300px; /* Adjust height as needed */
+  overflow-y: auto;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  border: 1px solid #e0e0e0;
+  border-radius: 12px; /* Matches the border radius of friends list */
+  padding: 10px;
+  margin-top: 10px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  justify-content: center;
+}
+
+.group-members-container h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #000000; /* Change to black color */
+}
+
+
+.group-members-container ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.group-members-container li {
+  width: 100%; /* Ensure items fit the container width */
+  padding: 15px;
+  margin: 10px 0; /* Adjusted margin to space out list items */
+  font-size: 14px;
+  border-radius: 12px; /* Matches the friends list item border radius */
+  background-color: #5895ef; /* Matches the friends list item background color */
+  color: white;
+  transition: background-color 0.3s, transform 0.3s;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
+
+.group-members-container li:hover {
+  background-color: #e0e0e0;
+  color: black;
+  transform: scale(1.02);
+}
+
+.group-members-container li button {
+  background-color: #080808;
+  color: #ffffff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.group-members-container li button:hover {
+  background-color: #003d7d;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .group-members-container {
+    max-height: 200px; /* Adjust for smaller screens */
+  }
+
+  .group-members-container h3 {
+    font-size: 14px; /* Adjust font size for smaller screens */
+  }
+
+  .group-members-container h4 {
+    font-size: 12px; /* Adjust font size for smaller screens */
+  }
+
+  .group-members-container li {
+    font-size: 10px; /* Adjust font size for smaller screens */
+  }
+}

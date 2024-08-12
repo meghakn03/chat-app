@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import User from '../models/userModel';
+import Group from '../models/groupModel';
 
 // Get all friends of a user
 export const getUserFriends = async (req: Request, res: Response) => {
@@ -89,5 +90,26 @@ export const getUsersByIds = async (req: Request, res: Response) => {
     }
 };
 
+// Get groups of the logged-in user
+export const getUserGroups = async (req: Request, res: Response) => {
+    const { userId } = req.params;
 
+    try {
+        // Fetch the user by ID and populate the groups field
+        const user = await User.findById(userId).populate('groups', 'groupName admin members createdAt');
+        
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
 
+        // Fetch group details based on the IDs in the user's groups field
+        const groups = await Group.find({ '_id': { $in: user.groups } })
+            .populate('admin', 'username email avatar')
+            .populate('members', 'username email avatar');
+
+        res.status(200).json(groups);
+    } catch (error) {
+        console.error('Error fetching user groups:', error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+};

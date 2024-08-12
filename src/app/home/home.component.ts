@@ -303,19 +303,36 @@ export class HomeComponent implements OnInit {
     }
   }
   
-
   selectGroup(group: any) {
     this.selectedGroup = group;
     this.selectedFriend = null; // Deselect any selected friend
     this.loadChatMessages(group._id); // Load group messages
   }
+  
+  showDropdown: { [key: string]: boolean } = {};
+
+  toggleGroupDropdown(groupId: string) {
+    // Toggle visibility for the selected group
+    this.showDropdown[groupId] = !this.showDropdown[groupId];
+  }
+
+  isGroupDropdownVisible(groupId: string): boolean {
+    return !!this.showDropdown[groupId];
+  }
 
   loadGroups() {
-    // Fetch groups for the logged-in user (to be implemented later with API)
-    // Example:
-    // this.http.get<any[]>(`http://localhost:4000/api/groups/${this.loggedInUserId}`)
-    //   .subscribe(groups => this.groups = groups);
+    if (this.loggedInUserId) {
+      this.http.get<any[]>(`http://localhost:4000/api/users/${this.loggedInUserId}/groups`, { headers: this.getAuthHeaders() })
+        .subscribe(groups => {
+          this.groups = groups;
+          console.log('Groups loaded:', this.groups);
+        }, error => {
+          console.error('Error loading groups:', error);
+        });
+    }
   }
+  
+  
 
 
   private getLoggedInUser() {

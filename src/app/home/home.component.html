@@ -37,9 +37,23 @@
           <button *ngIf="showAllUsers && !friend.isFriend" (click)="addFriend(friend)">Add as Friend</button>
           <span *ngIf="showAllUsers && friend.isFriend">Already a friend</span>
         </li>
-        <li *ngFor="let group of groups" (click)="selectGroup(group)">
-          {{ group.groupName }} (Group)
-        </li>
+        <ul>
+          <li *ngFor="let group of groups" (click)="toggleGroupDropdown(group._id)">
+            <div class="group-details">
+              <p>{{ group.groupName }}</p>
+              <!-- Toggle the visibility of the group members container -->
+              <div *ngIf="isGroupDropdownVisible(group._id)" class="group-members-container">
+                <h3>Members:</h3>
+                <ul>
+                  <li *ngFor="let member of group.members">
+                    {{ member.username }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </li>
+        </ul>
+        
       </ul>
     </aside>
     <section class="chat-area">
