@@ -105,13 +105,15 @@ export class HomeComponent implements OnInit {
     try {
       const msg = JSON.parse(message);
       if (msg && msg.text && msg.senderId) {
-        this.messages.push({ ...msg, timestamp: new Date(msg.timestamp) }); // Include timestamp
+        // Include timestamp and add the message to the messages array
+        this.messages.push({ ...msg, timestamp: new Date(msg.timestamp) });
         this.scrollToBottom(); // Scroll to the bottom after adding the message
       }
     } catch (e) {
       console.error('Error parsing message:', e);
     }
   }
+  
 
   getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('authToken'); // Assuming token is stored in localStorage
@@ -405,6 +407,36 @@ loadChatMessages(id: string) {
   isGroupDropdownVisible(groupId: string): boolean {
     return !!this.showDropdown[groupId];
   }
+
+  // Method to get username by ID
+  getUsername(userId: string): string {
+  const user = this.friends.find(friend => friend._id === userId);
+  return user ? user.username : 'Unknown User';
+}
+
+// Function to get color based on user ID
+getMessageColor(userId: string): string {
+  if (!userId) return '#f1f1f1'; // Default color if no user ID
+  if (!this.userColors[userId]) {
+    // Generate a random light color or choose from a predefined list
+    this.userColors[userId] = `hsl(${Math.random() * 360}, 70%, 80%)`;
+  }
+  return this.userColors[userId];
+}
+
+private userColors: { [key: string]: string } = {
+  // Example user IDs and their corresponding colors
+  'user1': '#FFDDC1', // light peach
+  'user2': '#FFABAB', // light pink
+  'user3': '#FFC3A0', // light coral
+  'user4': '#B9FBC0', // light green
+  'user5': '#A2C2E0', // light blue
+  'user6': '#B9A0B5', // light purple
+  'user7': '#F7B7A3', // light orange
+  'user8': '#B8E0D2', // light teal
+  'user9': '#E0B2A4', // light tan
+  'user10': '#DCE3F2' // light lavender
+};
 
   loadGroups() {
     if (this.loggedInUserId) {

@@ -210,6 +210,35 @@
   background-color: #003d7d;
 }
 
+.chat-messages .sent {
+  background-color: #c0d7f0;
+  align-self: flex-end; /* Align to the right */
+  text-align: right;
+}
+
+.chat-messages .received {
+  background-color: #f1f1f1;
+  align-self: flex-start; /* Align to the left */
+  text-align: left;
+}
+
+/* Username styling */
+.chat-messages .username {
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+}
+
+/* Different colors for messages */
+.sent {
+  background-color: #c0d7f0; /* Default light shade for sent messages */
+}
+
+.received {
+  background-color: #f1f1f1; /* Default light shade for received messages */
+}
+
+
 /* Media Queries for Responsive Design */
 @media (max-width: 768px) {
   .friends-list {

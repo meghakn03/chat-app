@@ -63,8 +63,12 @@
 </div>
 
 <!-- Group message section -->
+<!-- Group message section -->
 <div class="chat-messages" #chatContainer>
-  <div *ngFor="let msg of messages" [ngClass]="{'sent': msg.senderId === loggedInUserId, 'received': msg.senderId !== loggedInUserId}">
+  <div *ngFor="let msg of messages" 
+       [ngClass]="{'sent': msg.senderId === loggedInUserId, 'received': msg.senderId !== loggedInUserId}" 
+       [ngStyle]="{'background-color': getMessageColor(msg.senderId)}">
+    <p *ngIf="msg.senderId !== loggedInUserId" class="username">{{ getUsername(msg.senderId) }}</p>
     <p>{{ msg.text }}</p>
     <small>{{ msg.timestamp | date: 'shortTime' }}</small>
   </div>
