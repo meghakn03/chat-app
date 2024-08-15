@@ -8,9 +8,13 @@ import chatRoutes from './routes/chatRoutes'; // Import new chat routes
 import groupRoutes from './routes/groupRoutes';  // Import new group routes
 import http from 'http';
 import WebSocket from 'ws';
+import multer from 'multer';
+import path from 'path';
+
 
 // Create an Express application
 const app = express();
+const upload = multer({ dest: 'uploads/' }); // Ensure the 'uploads' directory exists
 const port = process.env.PORT || 4000;
 
 // Set up CORS and body parser
@@ -60,6 +64,35 @@ wss.on('connection', (ws) => {
     // Add the new client to the clients map
     clients.set(ws, ws);
 });
+
+
+
+// Set up multer for file storage
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+      cb(null, Date.now() + path.extname(file.originalname));
+    }
+  });
+    
+// Route to handle file upload
+app.post('/api/uploads', upload.single('file'), (req, res) => {
+    console.log('Uploaded file:', req.file); // Log the uploaded file details
+    const file = req.file;
+    if (!file) {
+      return res.status(400).send('No file uploaded.');
+    }
+  
+    // Generate a URL or path to access the file
+    const fileUrl = `/uploads/${file.filename}`;
+    
+    // Respond with the file URL
+    res.json({ fileUrl });
+  });
+
+  app.use('/uploads', express.static('uploads'));
 
 // Start the HTTP server and WebSocket server on the same port
 server.listen(port, () => {

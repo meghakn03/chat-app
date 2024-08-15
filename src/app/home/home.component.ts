@@ -27,7 +27,9 @@ export class HomeComponent implements OnInit {
     timestamp: Date; 
     recipientId?: string; 
     groupId?: string; 
+    fileUrl?: string; // Make fileUrl optional
   }[] = [];
+  
     isFriendsListCollapsed: boolean = false;
   showAllUsers: boolean = false;
   searchTerm: string = '';
@@ -35,6 +37,7 @@ export class HomeComponent implements OnInit {
   ws: WebSocket | null = null; // WebSocket connection
   message: string = ''; // New property for the message being sent
   creatingGroup: boolean = false; // Flag for group creation mode
+  fileUrl: string = ''; // Add fileUrl property
 
   constructor(private router: Router, private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
@@ -105,7 +108,7 @@ export class HomeComponent implements OnInit {
     try {
       const msg = JSON.parse(message);
       if (msg && msg.text && msg.senderId) {
-        // Include timestamp and add the message to the messages array
+        // Include fileUrl if available
         this.messages.push({ ...msg, timestamp: new Date(msg.timestamp) });
         this.scrollToBottom(); // Scroll to the bottom after adding the message
       }
@@ -113,6 +116,7 @@ export class HomeComponent implements OnInit {
       console.error('Error parsing message:', e);
     }
   }
+  
   
 
   getAuthHeaders(): HttpHeaders {
@@ -207,83 +211,52 @@ export class HomeComponent implements OnInit {
     this.loadChatMessages(friend._id);
   }
   
-
-  //  sendMessage() {
-  //   if (this.message.trim() && this.selectedFriend && this.loggedInUserId) {
-  //     const msg = {
-  //       text: this.message,
-  //       senderId: this.loggedInUserId,
-  //       recipientId: this.selectedFriend._id,
-  //       timestamp: new Date() // Include the current timestamp
-  //     };
-
-  //     this.http.post('http://localhost:4000/api/chats', msg, { headers: this.getAuthHeaders() })
-  //       .subscribe(
-  //         response => {
-  //           console.log('Message saved successfully:', response);
-  //           if (this.ws) {
-  //             this.ws.send(JSON.stringify(msg));
-  //             this.message = '';
-  //             setTimeout(() => this.scrollToBottom(), 0); // Scroll to bottom after message is sent
-  //           }
-  //         },
-  //         error => {
-  //           console.error('Error saving message:', error);
-  //           alert('Failed to send message.');
-  //         }
-  //       );
-  //   } else {
-  //     alert('Message is empty or no friend selected.');
-  //   }
-  // }
-
-  // Update sendMessage to handle both users and groups
-  sendMessage() {
-    console.log('Message:', this.message);
-    console.log('Selected Friend:', this.selectedFriend);
-    console.log('Selected Group:', this.selectedGroup);
+  onFileChange(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
   
-    if (this.message.trim() && (this.selectedFriend || this.selectedGroup) && this.loggedInUserId) {
+      this.http.post<{ fileUrl: string }>('http://localhost:4000/api/uploads', formData)
+        .subscribe(response => {
+          this.fileUrl = response.fileUrl;
+        }, error => {
+          console.error('Error uploading file:', error);
+        });
+    }
+  }
+  
+  sendMessage() {
+    if (this.message.trim() || this.fileUrl) {
       const msg: any = {
         text: this.message,
         senderId: this.loggedInUserId,
-        timestamp: new Date()
+        timestamp: new Date(),
+        fileUrl: this.fileUrl // Include fileUrl if available
       };
   
       if (this.selectedFriend) {
         msg.recipientId = this.selectedFriend._id;
         this.http.post('http://localhost:4000/api/chats', msg, { headers: this.getAuthHeaders() })
-          .subscribe(
-            response => {
-              console.log('Message saved successfully:', response);
-              if (this.ws) {
-                this.ws.send(JSON.stringify(msg));
-                this.message = '';
-                setTimeout(() => this.scrollToBottom(), 0);
-              }
-            },
-            error => {
-              console.error('Error saving message:', error);
-              alert('Failed to send message.');
+          .subscribe(response => {
+            if (this.ws) {
+              this.ws.send(JSON.stringify(msg));
+              this.message = '';
+              this.fileUrl = ''; // Reset file URL after sending
+              setTimeout(() => this.scrollToBottom(), 0);
             }
-          );
+          });
       } else if (this.selectedGroup) {
         msg.groupId = this.selectedGroup._id;
         this.http.post(`http://localhost:4000/api/groups/${this.selectedGroup._id}/messages`, msg, { headers: this.getAuthHeaders() })
-          .subscribe(
-            response => {
-              console.log('Message saved successfully:', response);
-              if (this.ws) {
-                this.ws.send(JSON.stringify(msg));
-                this.message = '';
-                setTimeout(() => this.scrollToBottom(), 0);
-              }
-            },
-            error => {
-              console.error('Error saving message:', error);
-              alert('Failed to send message.');
+          .subscribe(response => {
+            if (this.ws) {
+              this.ws.send(JSON.stringify(msg));
+              this.message = '';
+              this.fileUrl = ''; // Reset file URL after sending
+              setTimeout(() => this.scrollToBottom(), 0);
             }
-          );
+          });
       }
     } else {
       alert('Message is empty or no recipient selected.');
@@ -291,22 +264,61 @@ export class HomeComponent implements OnInit {
   }
   
 
-  // loadChatMessages(friendId: string) {
-  //   if (this.loggedInUserId) {
-  //     const endpoint = `http://localhost:4000/api/chats/${this.loggedInUserId}/${friendId}`;
-  //     this.http.get<any[]>(endpoint, { headers: this.getAuthHeaders() })
-  //       .subscribe(messages => {
-  //         this.messages = messages.map(msg => ({
-  //           ...msg,
-  //           timestamp: new Date(msg.timestamp)
-  //         }));
-  //         console.log('Chat messages loaded:', messages);
-  //         setTimeout(() => this.scrollToBottom(), 0); // Scroll to bottom after messages are loaded
-  //       }, error => {
-  //         console.error('Error fetching chat messages:', error);
-  //       });
+
+  // Update sendMessage to handle both users and groups
+  // sendMessage() {
+  //   console.log('Message:', this.message);
+  //   console.log('Selected Friend:', this.selectedFriend);
+  //   console.log('Selected Group:', this.selectedGroup);
+  
+  //   if (this.message.trim() && (this.selectedFriend || this.selectedGroup) && this.loggedInUserId) {
+  //     const msg: any = {
+  //       text: this.message,
+  //       senderId: this.loggedInUserId,
+  //       timestamp: new Date()
+  //     };
+  
+  //     if (this.selectedFriend) {
+  //       msg.recipientId = this.selectedFriend._id;
+  //       this.http.post('http://localhost:4000/api/chats', msg, { headers: this.getAuthHeaders() })
+  //         .subscribe(
+  //           response => {
+  //             console.log('Message saved successfully:', response);
+  //             if (this.ws) {
+  //               this.ws.send(JSON.stringify(msg));
+  //               this.message = '';
+  //               setTimeout(() => this.scrollToBottom(), 0);
+  //             }
+  //           },
+  //           error => {
+  //             console.error('Error saving message:', error);
+  //             alert('Failed to send message.');
+  //           }
+  //         );
+  //     } else if (this.selectedGroup) {
+  //       msg.groupId = this.selectedGroup._id;
+  //       this.http.post(`http://localhost:4000/api/groups/${this.selectedGroup._id}/messages`, msg, { headers: this.getAuthHeaders() })
+  //         .subscribe(
+  //           response => {
+  //             console.log('Message saved successfully:', response);
+  //             if (this.ws) {
+  //               this.ws.send(JSON.stringify(msg));
+  //               this.message = '';
+  //               setTimeout(() => this.scrollToBottom(), 0);
+  //             }
+  //           },
+  //           error => {
+  //             console.error('Error saving message:', error);
+  //             alert('Failed to send message.');
+  //           }
+  //         );
+  //     }
+  //   } else {
+  //     alert('Message is empty or no recipient selected.');
   //   }
   // }
+  
+
 
   // Update loadChatMessages to handle both users and groups
 loadChatMessages(id: string) {

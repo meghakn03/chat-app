@@ -4,10 +4,10 @@ import Chat from '../models/chatModel';
 
 // Save a new chat message
 export const saveChat = async (req: Request, res: Response) => {
-  const { text, senderId, recipientId } = req.body;
+  const { text, senderId, recipientId, fileUrl } = req.body;
 
   try {
-    const chatMessage = new Chat({ text, senderId, recipientId });
+    const chatMessage = new Chat({ text, senderId, recipientId, fileUrl });
     await chatMessage.save();
     res.status(201).json(chatMessage);
   } catch (error) {
@@ -15,6 +15,7 @@ export const saveChat = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Server error', error });
   }
 };
+
 
 // Get chat messages between two users
 export const getChats = async (req: Request, res: Response) => {

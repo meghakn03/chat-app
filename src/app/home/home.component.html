@@ -70,6 +70,10 @@
        [ngStyle]="{'background-color': getMessageColor(msg.senderId)}">
     <p *ngIf="msg.senderId !== loggedInUserId" class="username">{{ getUsername(msg.senderId) }}</p>
     <p>{{ msg.text }}</p>
+     <!-- Display the file link if fileUrl is available -->
+     <div *ngIf="msg.fileUrl">
+      <a [href]="msg.fileUrl" target="_blank">View File</a>
+    </div>
     <small>{{ msg.timestamp | date: 'shortTime' }}</small>
   </div>
 </div>
@@ -82,8 +86,13 @@
     (keydown.enter)="sendMessage()"
     placeholder="Type your message..."
   />
+  <input
+    type="file"
+    (change)="onFileChange($event)"
+  />
   <button (click)="sendMessage()">Send</button>
 </div>
+
 
     </section>
   </div>
