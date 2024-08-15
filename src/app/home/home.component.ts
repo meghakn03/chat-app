@@ -112,12 +112,17 @@ export class HomeComponent implements OnInit {
       if (msg && (msg.text || msg.fileUrl) && msg.senderId) {
         // Include fileUrl if available
         this.messages.push({ ...msg, timestamp: new Date(msg.timestamp) });
-        this.scrollToBottom(); // Scroll to the bottom after adding the message
+        
+        // Add a delay to allow images/files to load before scrolling
+        setTimeout(() => {
+          this.scrollToBottom();
+        }, 100); // 100ms delay, you can adjust this value if needed
       }
     } catch (e) {
       console.error('Error parsing message:', e);
     }
   }
+  
   
   
 
@@ -231,45 +236,46 @@ export class HomeComponent implements OnInit {
   
   sendMessage() {
     if (this.message.trim() || this.fileUrl) {
-      const msg: any = {
-        text: this.message,
-        senderId: this.loggedInUserId,
-        timestamp: new Date(),
-        fileUrl: this.fileUrl
-      };
+        const msg: any = {
+            text: this.message,
+            senderId: this.loggedInUserId,
+            timestamp: new Date(),
+            fileUrl: this.fileUrl
+        };
 
-      if (this.selectedFriend) {
-        msg.recipientId = this.selectedFriend._id;
-        this.http.post('http://localhost:4000/api/chats', msg, { headers: this.getAuthHeaders() })
-          .subscribe(response => {
-            if (this.ws) {
-              this.ws.send(JSON.stringify(msg));
-              this.message = '';
-              this.fileUrl = ''; // Reset file URL after sending
-              this.cdr.detectChanges(); // Trigger change detection
-              setTimeout(() => this.scrollToBottom(), 0);
-            }
-          });
-      } else if (this.selectedGroup) {
-        msg.groupId = this.selectedGroup._id;
-        this.http.post(`http://localhost:4000/api/groups/${this.selectedGroup._id}/messages`, msg, { headers: this.getAuthHeaders() })
-          .subscribe(response => {
-            if (this.ws) {
-              this.ws.send(JSON.stringify(msg));
-              this.message = '';
-              this.fileUrl = ''; // Reset file URL after sending
-              this.cdr.detectChanges(); // Trigger change detection
-              setTimeout(() => this.scrollToBottom(), 0);
-            }
-          });
-      }
-      this.message = '';
-      this.selectedFile = null;
-      this.selectedFileName = '';
+        if (this.selectedFriend) {
+            msg.recipientId = this.selectedFriend._id;
+            this.http.post('http://localhost:4000/api/chats', msg, { headers: this.getAuthHeaders() })
+                .subscribe(response => {
+                    if (this.ws) {
+                        this.ws.send(JSON.stringify(msg));
+                        this.message = '';
+                        this.fileUrl = ''; // Reset file URL after sending
+                        this.cdr.detectChanges(); // Trigger change detection
+                        setTimeout(() => this.scrollToBottom(), 0); // Ensure scroll after DOM update
+                    }
+                });
+        } else if (this.selectedGroup) {
+            msg.groupId = this.selectedGroup._id;
+            this.http.post(`http://localhost:4000/api/groups/${this.selectedGroup._id}/messages`, msg, { headers: this.getAuthHeaders() })
+                .subscribe(response => {
+                    if (this.ws) {
+                        this.ws.send(JSON.stringify(msg));
+                        this.message = '';
+                        this.fileUrl = ''; // Reset file URL after sending
+                        this.cdr.detectChanges(); // Trigger change detection
+                        setTimeout(() => this.scrollToBottom(), 0); // Ensure scroll after DOM update
+                    }
+                });
+        }
+        this.message = '';
+        this.selectedFile = null;
+        this.selectedFileName = '';
     } else {
-      alert('Message is empty or no recipient selected.');
+        alert('Message is empty or no recipient selected.');
     }
-  }
+}
+
 
 
   getFullFileUrl(fileUrl: string): string {
@@ -345,22 +351,25 @@ export class HomeComponent implements OnInit {
 
 
   // Update loadChatMessages to handle both users and groups
-loadChatMessages(id: string) {
-  if (this.loggedInUserId) {
-      const endpoint = this.selectedGroup ? `http://localhost:4000/api/groups/${id}/messages` : `http://localhost:4000/api/chats/${this.loggedInUserId}/${id}`;
+  loadChatMessages(id: string) {
+    if (this.loggedInUserId) {
+      const endpoint = this.selectedGroup ? 
+        `http://localhost:4000/api/groups/${id}/messages` : 
+        `http://localhost:4000/api/chats/${this.loggedInUserId}/${id}`;
       this.http.get<any[]>(endpoint, { headers: this.getAuthHeaders() })
-          .subscribe(messages => {
-              this.messages = messages.map(msg => ({
-                  ...msg,
-                  timestamp: new Date(msg.timestamp)
-              }));
-              console.log('Chat messages loaded:', messages);
-              setTimeout(() => this.scrollToBottom(), 0); // Scroll to bottom after messages are loaded
-          }, error => {
-              console.error('Error fetching chat messages:', error);
-          });
+        .subscribe(messages => {
+          this.messages = messages.map(msg => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp)
+          }));
+          console.log('Chat messages loaded:', messages);
+          setTimeout(() => this.scrollToBottom(), 0); // Scroll to bottom after messages are loaded
+        }, error => {
+          console.error('Error fetching chat messages:', error);
+        });
+    }
   }
-}
+  
 
 
   logout() {

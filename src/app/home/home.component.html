@@ -95,6 +95,7 @@
     type="file"
     id="fileInput"
     (change)="onFileChange($event)"
+    (keydown.enter)="sendMessage()"
     style="display: none;" 
   />
   <label for="fileInput" class="attachment-icon">
