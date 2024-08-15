@@ -72,9 +72,13 @@
     <p>{{ msg.text }}</p>
      <!-- Display the file link if fileUrl is available -->
      <div *ngIf="msg.fileUrl">
-      <a [href]="msg.fileUrl" target="_blank">View File</a>
-    </div>
-    <small>{{ msg.timestamp | date: 'shortTime' }}</small>
+      <img *ngIf="msg.fileUrl" [src]="getFullFileUrl(msg.fileUrl)" alt="File" />
+ <!-- Display PDF viewer for PDF files -->
+ <embed *ngIf="isPdf(msg.fileUrl)" [src]="getFullFileUrl(msg.fileUrl)" type="application/pdf" width="100%" height="600px" />
+  
+ <!-- Display other document types -->
+ <a *ngIf="isDocument(msg.fileUrl)" [href]="getFullFileUrl(msg.fileUrl)" target="_blank">View Document</a>
+</div>    <small>{{ msg.timestamp | date: 'shortTime' }}</small>
   </div>
 </div>
 

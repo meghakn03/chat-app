@@ -262,8 +262,23 @@ export class HomeComponent implements OnInit {
       alert('Message is empty or no recipient selected.');
     }
   }
+
+  getFullFileUrl(fileUrl: string): string {
+    return `http://localhost:4000${fileUrl}`;
+  }
   
 
+  isImage(fileUrl: string): boolean {
+    return fileUrl.match(/\.(jpg|jpeg|png|gif)$/i) !== null;
+  }
+
+  isPdf(fileUrl: string): boolean {
+    return fileUrl.match(/\.pdf$/i) !== null;
+  }
+
+  isDocument(fileUrl: string): boolean {
+    return !this.isImage(fileUrl) && !this.isPdf(fileUrl);
+  }
 
   // Update sendMessage to handle both users and groups
   // sendMessage() {
