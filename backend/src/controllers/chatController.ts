@@ -41,3 +41,21 @@ export const getChats = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Server error', error });
   }
 };
+
+
+// New function to mark messages as read
+export const markMessagesAsRead = async (req: Request, res: Response) => {
+  try {
+      const { user1, user2 } = req.params;
+
+      // Find messages where user1 is the recipient and user2 is the sender, and mark them as read
+      await Chat.updateMany(
+          { senderId: user2, receiverId: user1, read: false },
+          { $set: { read: true } }
+      );
+
+      res.status(200).json({ message: 'Messages marked as read' });
+  } catch (error) {
+      res.status(500).json({ error: 'Failed to mark messages as read' });
+  }
+};

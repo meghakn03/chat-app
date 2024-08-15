@@ -33,10 +33,13 @@
       </div>
       <ul>
         <li *ngFor="let friend of filteredFriends" (click)="selectFriend(friend)">
-          {{ friend.username }}
+          <span>{{ friend.username }}</span>
+          <!-- Display badge for unread messages -->
+          <span *ngIf="friend.unreadCount > 0" class="notification-badge">{{ friend.unreadCount }}</span>
           <button *ngIf="showAllUsers && !friend.isFriend" (click)="addFriend(friend)">Add as Friend</button>
           <span *ngIf="showAllUsers && friend.isFriend">Already a friend</span>
         </li>
+        <!-- Group list with badges -->
         <ul>
           <li *ngFor="let group of groups" (click)="handleGroupClick(group)">
             <div class="group-details">
@@ -51,62 +54,56 @@
                 </ul>
               </div>
             </div>
+            <!-- Display badge for group notifications -->
+            <span *ngIf="groupNotifications[group._id] > 0" class="notification-badge">{{ groupNotifications[group._id] }}</span>
           </li>
         </ul>
-        
       </ul>
     </aside>
+
     <section class="chat-area">
-     <!-- Modify the chat header to reflect group selection -->
-<div class="chat-header">
-  <h2>{{ selectedFriend ? selectedFriend.username : selectedGroup ? selectedGroup.groupName : 'Select a friend or group' }}</h2>
-</div>
+      <div class="chat-header">
+        <h2>{{ selectedFriend ? selectedFriend.username : selectedGroup ? selectedGroup.groupName : 'Select a friend or group' }}</h2>
+      </div>
 
-<!-- Group message section -->
-<!-- Group message section -->
-<div class="chat-messages" #chatContainer>
-  <div *ngFor="let msg of messages" 
-       [ngClass]="{'sent': msg.senderId === loggedInUserId, 'received': msg.senderId !== loggedInUserId}" 
-       [ngStyle]="{'background-color': getMessageColor(msg.senderId)}">
-    <p *ngIf="msg.senderId !== loggedInUserId" class="username">{{ getUsername(msg.senderId) }}</p>
-    <p>{{ msg.text }}</p>
-     <!-- Display the file link if fileUrl is available -->
-     <div *ngIf="msg.fileUrl">
-      <img *ngIf="msg.fileUrl" [src]="getFullFileUrl(msg.fileUrl)" alt="File" class="image-preview" />
-      <embed *ngIf="isPdf(msg.fileUrl)" [src]="getFullFileUrl(msg.fileUrl)" type="application/pdf" width="100%" height="600px" />
-      <a *ngIf="isDocument(msg.fileUrl)" [href]="getFullFileUrl(msg.fileUrl)" target="_blank">
-        <span class="material-icons" style="color: black;">download</span>
-      </a>
-    </div>
-      
-<small>{{ msg.timestamp | date: 'shortTime' }}</small>
-  </div>
-</div>
+      <div class="chat-messages" #chatContainer>
+        <div *ngFor="let msg of messages" 
+             [ngClass]="{'sent': msg.senderId === loggedInUserId, 'received': msg.senderId !== loggedInUserId}" 
+             [ngStyle]="{'background-color': getMessageColor(msg.senderId)}">
+          <p *ngIf="msg.senderId !== loggedInUserId" class="username">{{ getUsername(msg.senderId) }}</p>
+          <p>{{ msg.text }}</p>
+          <!-- Display the file link if fileUrl is available -->
+          <div *ngIf="msg.fileUrl">
+            <img *ngIf="msg.fileUrl" [src]="getFullFileUrl(msg.fileUrl)" alt="File" class="image-preview" />
+            <embed *ngIf="isPdf(msg.fileUrl)" [src]="getFullFileUrl(msg.fileUrl)" type="application/pdf" width="100%" height="600px" />
+            <a *ngIf="isDocument(msg.fileUrl)" [href]="getFullFileUrl(msg.fileUrl)" target="_blank">
+              <span class="material-icons" style="color: black;">download</span>
+            </a>
+          </div>
+          <small>{{ msg.timestamp | date: 'shortTime' }}</small>
+        </div>
+      </div>
 
-<!-- Input for sending messages -->
-<div class="chat-input">
-  <input
-    type="text"
-    [(ngModel)]="message"
-    (keydown.enter)="sendMessage()"
-    placeholder="Type your message..."
-    [value]="message"
-  />
-  <input
-    type="file"
-    id="fileInput"
-    (change)="onFileChange($event)"
-    (keydown.enter)="sendMessage()"
-    style="display: none;" 
-  />
-  <label for="fileInput" class="attachment-icon">
-    <span class="material-icons">attach_file</span>
-  </label>
-  <span *ngIf="selectedFileName" class="file-name">{{ selectedFileName }}</span>
-  <button (click)="sendMessage()">Send</button>
-</div>
-
-
+      <div class="chat-input">
+        <input
+          type="text"
+          [(ngModel)]="message"
+          (keydown.enter)="sendMessage()"
+          placeholder="Type your message..."
+          [value]="message"
+        />
+        <input
+          type="file"
+          id="fileInput"
+          (change)="onFileChange($event)"
+          style="display: none;" 
+        />
+        <label for="fileInput" class="attachment-icon">
+          <span class="material-icons">attach_file</span>
+        </label>
+        <span *ngIf="selectedFileName" class="file-name">{{ selectedFileName }}</span>
+        <button (click)="sendMessage()">Send</button>
+      </div>
     </section>
   </div>
 </div>

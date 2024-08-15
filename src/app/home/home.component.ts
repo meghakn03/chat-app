@@ -40,6 +40,9 @@ export class HomeComponent implements OnInit {
   fileUrl: string = ''; // Add fileUrl property
   selectedFileName: string = '';  
   selectedFile: File | null = null;
+  notifications: string[] = [];
+  groupNotifications: { [key: string]: number } = {}; // Object to store notifications count for each group
+
 
   constructor(private router: Router, private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
@@ -48,6 +51,7 @@ export class HomeComponent implements OnInit {
     if (this.loggedInUserId) {
       this.loadFriends(); // Call loadFriends() only if user ID is available
       this.loadGroups(); // Load existing groups
+      this.fetchUnreadCounts(); // Fetch unread counts
       this.setupWebSocket();
       if (this.selectedFriend) {
         this.loadChatMessages(this.selectedFriend._id);
@@ -62,6 +66,16 @@ export class HomeComponent implements OnInit {
     this.scrollToBottom();
   }
 
+  fetchUnreadCounts() {
+    this.http.get<{ friendId: string, unreadCount: number }[]>(`http://localhost:4000/api/chats/unread-count/${this.loggedInUserId}`, { headers: this.getAuthHeaders() })
+      .subscribe(unreadCounts => {
+        this.friends.forEach(friend => {
+          const count = unreadCounts.find(c => c.friendId === friend._id);
+          friend.unreadCount = count ? count.unreadCount : 0;
+        });
+      });
+  }
+  
   
   // Scroll to the bottom of the chat
   scrollToBottom(): void {
@@ -110,13 +124,17 @@ export class HomeComponent implements OnInit {
     try {
       const msg = JSON.parse(message);
       if (msg && (msg.text || msg.fileUrl) && msg.senderId) {
-        // Include fileUrl if available
         this.messages.push({ ...msg, timestamp: new Date(msg.timestamp) });
         
-        // Add a delay to allow images/files to load before scrolling
-        setTimeout(() => {
-          this.scrollToBottom();
-        }, 100); // 100ms delay, you can adjust this value if needed
+        // Update unread count if the message is not from the logged-in user
+        if (msg.senderId !== this.loggedInUserId) {
+          const senderFriend = this.friends.find(f => f._id === msg.senderId);
+          if (senderFriend) {
+            senderFriend.unreadCount = (senderFriend.unreadCount || 0) + 1;
+          }
+        }
+        
+        setTimeout(() => this.scrollToBottom(), 100);
       }
     } catch (e) {
       console.error('Error parsing message:', e);
@@ -124,7 +142,28 @@ export class HomeComponent implements OnInit {
   }
   
   
+  showPopupNotification(message: string) {
+    // Store notification message and trigger a badge update
+    this.notifications.push(message);
+    this.updateBadge();
+  }
+
+  updateBadge() {
+    // Example implementation: you might want to update a badge UI element
+    const badgeElement = document.querySelector('.notification-badge');
+    if (badgeElement) {
+      badgeElement.textContent = this.notifications.length.toString();
+    }
+  }
   
+  
+  // Update group notifications
+updateGroupNotifications(groupId: string) {
+  if (!this.groupNotifications[groupId]) {
+    this.groupNotifications[groupId] = 0;
+  }
+  this.groupNotifications[groupId]++;
+}
 
   getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('authToken'); // Assuming token is stored in localStorage
@@ -210,13 +249,44 @@ export class HomeComponent implements OnInit {
     }
   }
 
-
   selectFriend(friend: any) {
-    console.log('Selecting friend:', friend); // Add debug log
     this.selectedFriend = friend;
     this.selectedGroup = null; // Deselect any selected group
     this.loadChatMessages(friend._id);
+  
+    // Mark messages as read on the server
+    this.http.put(`http://localhost:4000/api/chats/read/${this.loggedInUserId}/${friend._id}`, {}, { headers: this.getAuthHeaders() })
+    .subscribe(() => {
+      friend.unreadCount = 0;
+      this.cdr.detectChanges();
+    }, error => {
+      console.error('Error marking messages as read:', error);
+    });
+  
   }
+  
+  
+
+  selectGroup(group: any) {
+    console.log('Selecting group:', group); // Debug log for selecting group
+    this.selectedGroup = group;
+    this.selectedFriend = null; // Deselect any selected friend
+    this.loadChatMessages(group._id);
+  
+    // Mark group messages as read on the server
+    this.http.put('http://localhost:4000/api/groups/mark-read', { userId: this.loggedInUserId, groupId: group._id }, { headers: this.getAuthHeaders() })
+      .subscribe(() => {
+        // Reset the group notification count in the frontend state immediately
+        this.groupNotifications[group._id] = 0;
+        this.cdr.detectChanges(); // Trigger change detection to update the UI
+      }, error => {
+        console.error('Error marking group messages as read:', error);
+      });
+  }
+  
+  
+  
+  
   
   onFileChange(event: any) {
     const file = event.target.files[0];
@@ -430,12 +500,12 @@ export class HomeComponent implements OnInit {
     }
   }
   
-  selectGroup(group: any) {
-    console.log('Selecting group:', group); // Add debug log
-    this.selectedGroup = group;
-    this.selectedFriend = null; // Deselect any selected friend
-    this.loadChatMessages(group._id);
-  }
+  // selectGroup(group: any) {
+  //   console.log('Selecting group:', group); // Add debug log
+  //   this.selectedGroup = group;
+  //   this.selectedFriend = null; // Deselect any selected friend
+  //   this.loadChatMessages(group._id);
+  // }
   
   showDropdown: { [key: string]: boolean } = {};
 

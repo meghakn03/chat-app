@@ -16,7 +16,8 @@ const ChatSchema: Schema = new Schema({
   recipientId: { type: Schema.Types.ObjectId, ref: 'User' },
   groupId: { type: Schema.Types.ObjectId, ref: 'Group' },
   fileUrl: { type: String }, // Optional field for file URLs
-  timestamp: { type: Date, default: Date.now }
+  timestamp: { type: Date, default: Date.now },
+  read: { type: Boolean, default: false } // Add this field
 });
 
 
