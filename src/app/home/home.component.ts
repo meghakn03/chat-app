@@ -38,6 +38,8 @@ export class HomeComponent implements OnInit {
   message: string = ''; // New property for the message being sent
   creatingGroup: boolean = false; // Flag for group creation mode
   fileUrl: string = ''; // Add fileUrl property
+  selectedFileName: string = '';  
+  selectedFile: File | null = null;
 
   constructor(private router: Router, private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
@@ -107,7 +109,7 @@ export class HomeComponent implements OnInit {
   private displayMessage(message: string) {
     try {
       const msg = JSON.parse(message);
-      if (msg && msg.text && msg.senderId) {
+      if (msg && (msg.text || msg.fileUrl) && msg.senderId) {
         // Include fileUrl if available
         this.messages.push({ ...msg, timestamp: new Date(msg.timestamp) });
         this.scrollToBottom(); // Scroll to the bottom after adding the message
@@ -220,6 +222,7 @@ export class HomeComponent implements OnInit {
       this.http.post<{ fileUrl: string }>('http://localhost:4000/api/uploads', formData)
         .subscribe(response => {
           this.fileUrl = response.fileUrl;
+          this.selectedFileName = file.name; // Store the file name
         }, error => {
           console.error('Error uploading file:', error);
         });
@@ -232,9 +235,9 @@ export class HomeComponent implements OnInit {
         text: this.message,
         senderId: this.loggedInUserId,
         timestamp: new Date(),
-        fileUrl: this.fileUrl // Include fileUrl if available
+        fileUrl: this.fileUrl
       };
-  
+
       if (this.selectedFriend) {
         msg.recipientId = this.selectedFriend._id;
         this.http.post('http://localhost:4000/api/chats', msg, { headers: this.getAuthHeaders() })
@@ -243,6 +246,7 @@ export class HomeComponent implements OnInit {
               this.ws.send(JSON.stringify(msg));
               this.message = '';
               this.fileUrl = ''; // Reset file URL after sending
+              this.cdr.detectChanges(); // Trigger change detection
               setTimeout(() => this.scrollToBottom(), 0);
             }
           });
@@ -254,14 +258,19 @@ export class HomeComponent implements OnInit {
               this.ws.send(JSON.stringify(msg));
               this.message = '';
               this.fileUrl = ''; // Reset file URL after sending
+              this.cdr.detectChanges(); // Trigger change detection
               setTimeout(() => this.scrollToBottom(), 0);
             }
           });
       }
+      this.message = '';
+      this.selectedFile = null;
+      this.selectedFileName = '';
     } else {
       alert('Message is empty or no recipient selected.');
     }
   }
+
 
   getFullFileUrl(fileUrl: string): string {
     return `http://localhost:4000${fileUrl}`;

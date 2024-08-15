@@ -11,7 +11,7 @@ interface IChat extends Document {
 }
 
 const ChatSchema: Schema = new Schema({
-  text: { type: String, required: true },
+  text: { type: String, required: false },
   senderId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   recipientId: { type: Schema.Types.ObjectId, ref: 'User' },
   groupId: { type: Schema.Types.ObjectId, ref: 'Group' },

@@ -7,7 +7,14 @@ export const saveChat = async (req: Request, res: Response) => {
   const { text, senderId, recipientId, fileUrl } = req.body;
 
   try {
-    const chatMessage = new Chat({ text, senderId, recipientId, fileUrl });
+    // Create a new chat message with optional text
+    const chatMessage = new Chat({
+      text: text || '', // Provide an empty string if text is not provided
+      senderId,
+      recipientId,
+      fileUrl
+    });
+
     await chatMessage.save();
     res.status(201).json(chatMessage);
   } catch (error) {

@@ -180,6 +180,96 @@
   display: flex;
   align-items: center;
   padding-top: 10px;
+  background-color: #f1f1f1; /* Light background for better visibility */
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.chat-input input[type="text"] {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-right: 10px;
+  transition: border-color 0.3s;
+}
+
+.chat-input input[type="text"]:focus {
+  border-color: #0047a5;
+  outline: none;
+}
+
+.attachment-icon {
+  cursor: pointer;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  font-size: 24px; /* Adjust icon size */
+  color: #003d7d; /* Icon color */
+}
+
+.file-name {
+  margin-right: 10px;
+  color: #333;
+}
+
+.chat-input button {
+  background-color: #0c0c0c;
+  border: none;
+  color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.chat-input button:hover {
+  background-color: #003d7d;
+}
+
+.message-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-right: 10px;
+  transition: border-color 0.3s;
+}
+
+.message-input:focus {
+  border-color: #0047a5;
+  outline: none;
+}
+
+.file-input-label {
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.file-input {
+  display: none; /* Hide the native file input */
+}
+
+.attachment-icon {
+  font-size: 1.5rem;
+  color: #0047a5;
+}
+
+.send-button {
+  background-color: #0c0c0c;
+  border: none;
+  color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.send-button:hover {
+  background-color: #003d7d;
 }
 
 .chat-input input {
