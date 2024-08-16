@@ -43,7 +43,8 @@ export class HomeComponent implements OnInit {
   notifications: string[] = [];
   groupNotifications: { [key: string]: number } = {}; // Object to store notifications count for each group
   defaultAvatar = 'src/assets/images/profile-default.svg';
-
+  isAccountModalOpen: boolean = false;
+  userDetails: any;
 
   constructor(private router: Router, private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
@@ -142,6 +143,31 @@ export class HomeComponent implements OnInit {
     }
   }
   
+  goToAccount() {
+    this.isAccountModalOpen = true;
+    this.fetchUserDetails();
+  }
+
+  openAvatarSelection() {
+    // Implement avatar selection logic here
+  }
+
+  // Method to close account modal
+  closeAccountModal() {
+    this.isAccountModalOpen = false;
+  }
+
+  // Method to fetch user details
+  fetchUserDetails() {
+    if (this.loggedInUserId) {
+      this.http.get<any>(`http://localhost:4000/api/users/${this.loggedInUserId}`, { headers: this.getAuthHeaders() })
+        .subscribe(user => {
+          this.userDetails = user;
+        }, error => {
+          console.error('Error fetching user details:', error);
+        });
+    }
+  }
   
   showPopupNotification(message: string) {
     // Store notification message and trigger a badge update
@@ -446,10 +472,6 @@ updateGroupNotifications(groupId: string) {
   logout() {
     localStorage.removeItem('authToken'); // Clear the token
     this.router.navigate(['/login']);
-  }
-
-  goToAccount() {
-    console.log('Navigating to account settings...');
   }
 
   toggleFriendsList() {
