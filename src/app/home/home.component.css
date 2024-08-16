@@ -92,7 +92,7 @@
   color:white;
   transition: background-color 0.3s, transform 0.3s;
   display: flex;
-  justify-content: space-between;
+  justify-content:flex-start;
   align-items: center;
   width: 90%;
 }
@@ -355,6 +355,15 @@
   padding-left: 0.5rem;
   padding-right:0.5rem;
   border-radius: 20%;
+}
+
+.avatar-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px; /* space between avatar and username */
+  background-color: white;
 }
 
 

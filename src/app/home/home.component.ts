@@ -42,6 +42,7 @@ export class HomeComponent implements OnInit {
   selectedFile: File | null = null;
   notifications: string[] = [];
   groupNotifications: { [key: string]: number } = {}; // Object to store notifications count for each group
+  defaultAvatar = 'src/assets/images/profile-default.svg';
 
 
   constructor(private router: Router, private http: HttpClient, private cdr: ChangeDetectorRef) {}
