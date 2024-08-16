@@ -113,3 +113,24 @@ export const getUserGroups = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Server error', error });
     }
 };
+
+// Get user data by ID
+export const getUserById = async (req: Request, res: Response) => {
+    let { userId } = req.params;
+
+    // Sanitize the userId
+    userId = userId.trim();
+
+    try {
+        // Find the user by ID
+        const user = await User.findById(userId).select('username email avatar friends groups');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json(user);
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
